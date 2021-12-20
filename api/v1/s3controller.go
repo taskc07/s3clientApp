@@ -2,6 +2,7 @@ package v1
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -49,9 +50,11 @@ func (s S3controllerInstance) CreateFiles(e echo.Context) error {
 	var wg = &sync.WaitGroup{}
 	for i := 0; i < input.Instance; i++ {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup, count int) {
+		client := s3.New(sess)
+		go func(client *s3.S3, wg *sync.WaitGroup, count int) {
 			defer wg.Done()
-			_, err = s3.New(sess).PutObject(&s3.PutObjectInput{
+			defer fmt.Println("goroutine execution done: ", count)
+			_, err = client.PutObject(&s3.PutObjectInput{
 				Bucket:        aws.String(input.BucketName),
 				Key:           aws.String(input.ParentDir + input.KeyPrefix + "(" + strconv.Itoa(count) + ")" + input.KeySuffix),
 				ACL:           aws.String("private"),
@@ -63,7 +66,7 @@ func (s S3controllerInstance) CreateFiles(e echo.Context) error {
 			if err != nil {
 				log.Printf("goroutine error: " + err.Error())
 			}
-		}(wg, i)
+		}(client, wg, i)
 	}
 
 	if err != nil {

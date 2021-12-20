@@ -9,4 +9,5 @@ type CreateDirsDto struct {
 	Instance   string `json:"instance"`
 	KeyPrefix  string `json:"KeyPrefix"`
 	KeySuffix  string `json:"keySuffix"`
+	NullData   string `json:"nullData"`
 }

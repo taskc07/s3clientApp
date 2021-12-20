@@ -9,4 +9,5 @@ type CreateFilesDto struct {
 	Instance   int    `json:"instance"`
 	KeyPrefix  string `json:"KeyPrefix"`
 	KeySuffix  string `json:"keySuffix"`
+	NullData   string `json:"nullData"`
 }
