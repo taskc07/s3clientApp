@@ -21,18 +21,19 @@ import (
 )
 
 type cdhs struct {
-	input      dto.CreateDirsDto
-	bucketName string
-	endPoint   string
-	accessKey  string
-	secretKey  string
-	parentDir  string
-	instance   int
-	dirPrefix  string
-	dirSuffix  string
-	sess       *session.Session
-	mtx        *sync.Mutex
-	waitGrout  *sync.WaitGroup
+	input        dto.CreateDirsDto
+	bucketName   string
+	endPoint     string
+	accessKey    string
+	secretKey    string
+	parentDir    string
+	instance     int
+	dirPrefix    string
+	dirSuffix    string
+	sess         *session.Session
+	mtx          *sync.Mutex
+	waitGrout    *sync.WaitGroup
+	commonClient *s3.S3
 }
 
 type createDirsHelper struct {
@@ -199,6 +200,7 @@ func (createDirsHelper) connectingS3(e echo.Context, this *cdhs) error {
 		response.Helper().ErrorResponse(e, http.StatusBadRequest, constant.INVALID_BUCKET, "unable to connect with to bucket", err.Error())
 		return err
 	}
+	this.commonClient = s3.New(sess)
 	return nil
 }
 func (createDirsHelper) doPerform(e echo.Context, this *cdhs) error {
@@ -232,8 +234,12 @@ func (createDirsHelper) doPerform(e echo.Context, this *cdhs) error {
 					break
 				}
 			}
-
-			client := s3.New(sess)
+			var client *s3.S3
+			if this.input.EnableCommonClient == constant.TRUE {
+				client = this.commonClient
+			} else {
+				client = s3.New(sess)
+			}
 			_, err := client.PutObject(&s3.PutObjectInput{
 				Bucket:        aws.String(this.bucketName),
 				Key:           aws.String(this.parentDir + this.dirPrefix + "(" + PadNumberWithZero(count) + ")" + this.dirPrefix + constant.SLASH),

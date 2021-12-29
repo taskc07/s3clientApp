@@ -21,19 +21,20 @@ import (
 )
 
 type cfhs struct {
-	input       dto.CreateFilesDto
-	bucketName  string
-	endPoint    string
-	accessKey   string
-	secretKey   string
-	parentDir   string
-	instance    int
-	keyPrefix   string
-	keySuffix   string
-	sess        *session.Session
-	bytesStream *[]byte
-	mtx         *sync.Mutex
-	waitGrout   *sync.WaitGroup
+	input        dto.CreateFilesDto
+	bucketName   string
+	endPoint     string
+	accessKey    string
+	secretKey    string
+	parentDir    string
+	instance     int
+	keyPrefix    string
+	keySuffix    string
+	sess         *session.Session
+	bytesStream  *[]byte
+	mtx          *sync.Mutex
+	waitGrout    *sync.WaitGroup
+	commonClient *s3.S3
 }
 
 type createFilesHelper struct {
@@ -210,6 +211,7 @@ func (createFilesHelper) connectingS3(e echo.Context, this *cfhs) error {
 		response.Helper().ErrorResponse(e, http.StatusBadRequest, constant.INVALID_BUCKET, "unable to connect with to bucket", err.Error())
 		return err
 	}
+	this.commonClient = s3.New(sess)
 	return nil
 }
 func (createFilesHelper) doPerform(e echo.Context, this *cfhs) error {
@@ -244,7 +246,12 @@ func (createFilesHelper) doPerform(e echo.Context, this *cfhs) error {
 				}
 			}
 
-			client := s3.New(sess)
+			var client *s3.S3
+			if this.input.EnableCommonClient == constant.TRUE {
+				client = this.commonClient
+			} else {
+				client = s3.New(sess)
+			}
 			_, err := client.PutObject(&s3.PutObjectInput{
 				Bucket:        aws.String(this.bucketName),
 				Key:           aws.String(this.parentDir + this.keyPrefix + "(" + PadNumberWithZero(count) + ")" + this.keySuffix),

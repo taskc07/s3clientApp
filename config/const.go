@@ -5,7 +5,7 @@ import (
 )
 
 const ServerPort = "4040"
-const MaxGoRoutinesExecution = 300
+const MaxGoRoutinesExecution = 500
 
 //go:embed file.pdf
 var PdfBytes []byte
