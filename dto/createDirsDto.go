@@ -6,8 +6,8 @@ type CreateDirsDto struct {
 	AccessKey  string `json:"accessKey"`
 	SecretKey  string `json:"secretKey"`
 	ParentDir  string `json:"parentDir"`
-	Instance   string `json:"instance"`
-	KeyPrefix  string `json:"KeyPrefix"`
-	KeySuffix  string `json:"keySuffix"`
-	NullData   string `json:"nullData"`
+	Instance   int    `json:"instance"`
+	DirPrefix  string `json:"dirPrefix"`
+	DirSuffix  string `json:"dirSuffix"`
+	Verbose    string `json:"verbose"`
 }
