@@ -55,28 +55,28 @@ func (t *createDirsHelper) Execute(e echo.Context) error {
 	this.mtx = &sync.Mutex{}
 	this.waitGrout = &sync.WaitGroup{}
 
-	log.Println("[INFO]Initializing Properties...")
+	log.Println("[INFO] Initializing Properties...")
 	err := t.init(e, this)
 	if err != nil {
 		return err
 	}
 
-	log.Println("[INFO]Validating Inputs...")
+	log.Println("[INFO] Validating Inputs...")
 	err = t.checkInput(e, this)
 	if err != nil {
 		return err
 	}
 
-	log.Println("[INFO]Connecting To S3...")
+	log.Println("[INFO] Connecting To S3...")
 	err = t.connectingS3(e, this)
 	if err != nil {
 		return err
 	}
 
-	log.Println("[INFO]Performing Execution...")
+	log.Println("[INFO] Performing Execution...")
 	err = t.doPerform(e, this)
 	if err != nil {
-		log.Println("Error Occurred. Performing a Rollback...")
+		log.Println("[ERROR] Error Occurred. Performing a Rollback...")
 		_ = t.onRollback(e, this)
 		return err
 	}
